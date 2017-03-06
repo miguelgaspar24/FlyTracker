@@ -12,7 +12,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% CHANGE ME %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-folderspath = 'C:\Users\Miguel\Desktop\Cecilia';
+folderspath = 'C:\Users\Miguel\Desktop\PhD\Code\test_videos\FlyTracker_Patch';
 
 %%%% CHANGE ME %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -38,7 +38,7 @@ for a = 1:length(dirlist)
         % Get information about the location of .mat files, then look for
         % and load both -feat.mat and -track.mat files into the workspace.
         dirinfo = dirlist(a);
-        subdir = what([dirinfo.folder, '\', dirinfo.name]);
+        subdir = what([folderspath, '\', dirinfo.name]);
         matfiles = subdir.mat;
         folder = subdir.path;
         cd(folder);
@@ -319,34 +319,33 @@ end
 
 % Calculate the number of errors that have occurred.
 n_errors = length(error_list);
-log = string();
 
-% If there is at least one error in the list, and that element is not a
-% File Not Found, then we look for the folders they are in, and display a
-% warning message to the user, that reports the number of errors that have
-% occurred, and all the folders to look in for the respective error logs.
-%error_matrix = cell2mat(error_list);
-
-
-% Otherwise, display a message box informing the user that the patching
-% proccess completed successfully, and without any errors along the way.
+% If no errors occurred, then every item item in 'error_list' will be a
+% 'File Not Found'. In that case, display a message box informing the user
+% that the patching proccess completed successfully, and without any errors
+% along the way.
 if all(strcmp(error_list, 'File Not Found'))
     info = msgbox({'Patch successful. All relevant files restored.';'';...
                    'Number of errors found while patching: 0';''},...
                    'Success!',...
                    'Help',...
                    'help');
-               
+ 
+% Otherwise, we look for the folders they are in, and display a warning
+% message to the user, that reports the number of errors that have
+% occurred, and all the folders to look in for the respective error logs.
+log = cell(1, n_errors);
 else
     for error = 1:n_errors
         [~, err_folder, ~] = fileparts(fileparts(error_list{error}));
-        log(end+1) = err_folder;
+        log{error} = err_folder;
     end
 
-    log = char(log(2:end));
+    log = log';
+    %log_list = cell2mat(log)
     log_list = [];
     for entry = 1:n_errors
-        log_list = [log_list, ',', log(:,:,entry)];
+        log_list = [log_list, ',', log{entry}];
     end
 
     entry_list = char(strsplit(log_list, ','));
